@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2013
+VisualStudioVersion = 12.0.21005.1
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Amido.Testing.Saml2", "Amido.Testing.Saml2\Amido.Testing.Saml2.csproj", "{BCEEBAA6-678D-4EF7-A0C3-8BF67301E3CC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Amido.Testing.Saml2.TokenGenerator", "Amido.Testing.Saml2.TokenGenerator\Amido.Testing.Saml2.TokenGenerator.csproj", "{DC98A37B-2974-4CA0-9E6D-22D56EC30FC8}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{BCEEBAA6-678D-4EF7-A0C3-8BF67301E3CC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BCEEBAA6-678D-4EF7-A0C3-8BF67301E3CC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BCEEBAA6-678D-4EF7-A0C3-8BF67301E3CC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BCEEBAA6-678D-4EF7-A0C3-8BF67301E3CC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DC98A37B-2974-4CA0-9E6D-22D56EC30FC8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DC98A37B-2974-4CA0-9E6D-22D56EC30FC8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DC98A37B-2974-4CA0-9E6D-22D56EC30FC8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DC98A37B-2974-4CA0-9E6D-22D56EC30FC8}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
