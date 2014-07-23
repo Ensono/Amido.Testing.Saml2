@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Text;
-
 using Amido.Testing.Saml2.Models;
 using Amido.Testing.Saml2.Services;
 
@@ -30,9 +29,13 @@ namespace Amido.Testing.Saml2
         public string CreateSaml2BearerToken(Saml2TokenProperties saml2TokenProperties, bool base64Encode = true)
         {
             var saml2Token = saml2GeneratorService.CreateSaml2TokenWithBearerSubjectConfirmation(saml2TokenProperties);
-            return base64Encode
-                       ? saml2GeneratorService.GetSaml2TokenString(saml2Token)
-                       : Base64Encode(saml2GeneratorService.GetSaml2TokenString(saml2Token));
+
+            if (base64Encode)
+            {
+                return Base64Encode(saml2GeneratorService.GetSaml2TokenString(saml2Token));
+            }
+
+            return saml2GeneratorService.GetSaml2TokenString(saml2Token);
         }
 
         private static string Base64Encode(string token)

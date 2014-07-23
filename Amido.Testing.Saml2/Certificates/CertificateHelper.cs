@@ -1,7 +1,6 @@
 ﻿using System;
 using System.IdentityModel.Tokens;
 using System.Security.Cryptography.X509Certificates;
-using System.Text;
 
 namespace Amido.Testing.Saml2.Certificates
 {
@@ -14,28 +13,33 @@ namespace Amido.Testing.Saml2.Certificates
 
             foreach (var certificate in certificateStore.Certificates)
             {
-                if (certificate.Thumbprint.ToLower() == thumbprint.ToLower())
+                if (certificate == null || certificate.Thumbprint == null)
+                {
+                    continue;
+                }
+
+                if (String.Equals(certificate.Thumbprint, thumbprint, StringComparison.CurrentCultureIgnoreCase))
                 {
                     certificateStore.Close();
                     return certificate;
                 }
             }
 
-            throw new ArgumentException("Cannot find certificate");
+            throw new ArgumentException(string.Format("Cannot find certificate with thumbprint {0} in certificate store ", thumbprint));
         }
 
-        public static X509SigningCredentials CreateCredentials(X509Certificate2 certificate)
+        public static X509Certificate2 FindFromFile(string certificatePath, string password)
+        {
+            var x509Certificate2 = new X509Certificate2();
+
+            x509Certificate2.Import(certificatePath, password, X509KeyStorageFlags.DefaultKeySet);
+
+            return x509Certificate2;
+        }
+
+        public static X509SigningCredentials CreateSigningCredentials(X509Certificate2 certificate)
         {
             return new X509SigningCredentials(certificate);
-        }
-
-        public static X509Certificate2 FromFile(string path, string password)
-        {
-            var cert = new X509Certificate2();
-
-            cert.Import(path, password, X509KeyStorageFlags.DefaultKeySet);
-
-            return cert;
         }
     }
 }

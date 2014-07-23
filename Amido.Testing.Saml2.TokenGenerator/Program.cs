@@ -7,7 +7,6 @@ using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Web;
 using System.Windows.Forms;
-
 using Amido.Testing.Saml2.Certificates;
 using Amido.Testing.Saml2.Models;
 using Amido.Testing.Saml2.TokenGenerator.Configuration;
@@ -49,22 +48,13 @@ namespace Amido.Testing.Saml2.TokenGenerator
                 var thumbprint = ConfigurationManager.AppSettings["Thumbprint"].ToString(CultureInfo.InvariantCulture);
                 if (!string.IsNullOrWhiteSpace(thumbprint))
                 {
-                    Console.ForegroundColor = ConsoleColor.White;
-                    Console.WriteLine("Thumprint:");
-                    Console.ResetColor();
-                    Console.WriteLine(thumbprint);
+                    WriteToConsole("Thumbprint", thumbprint);
 
                     var storeName = ConfigurationManager.AppSettings["StoreName"];
-                    Console.ForegroundColor = ConsoleColor.White;
-                    Console.WriteLine("StoreName:");
-                    Console.ResetColor();
-                    Console.WriteLine(storeName);
+                    WriteToConsole("StoreName", storeName);
 
                     var storeLocation = ConfigurationManager.AppSettings["StoreLocation"];
-                    Console.ForegroundColor = ConsoleColor.White;
-                    Console.WriteLine("StoreLocation:");
-                    Console.ResetColor();
-                    Console.WriteLine(storeLocation);
+                    WriteToConsole("StoreLocation", storeLocation);
 
                     certificate = CertificateHelper.FindByThumbprint(thumbprint, GetStoreName(storeName), GetStoreLocation(storeLocation));
                     if (certificate != null)
@@ -75,18 +65,12 @@ namespace Amido.Testing.Saml2.TokenGenerator
                 else
                 {
                     var certificatePath = ConfigurationManager.AppSettings["CertificateLocation"];
-                    Console.ForegroundColor = ConsoleColor.White;
-                    Console.WriteLine("Certificate path:");
-                    Console.ResetColor();
-                    Console.WriteLine(certificatePath);
+                    WriteToConsole("Certificate path", certificatePath);
 
                     var certificatePassword = ConfigurationManager.AppSettings["CertificatePassword"];
-                    Console.ForegroundColor = ConsoleColor.White;
-                    Console.WriteLine("Certificate password:");
-                    Console.ResetColor();
-                    Console.WriteLine(certificatePassword);
+                    WriteToConsole("Certificate password", certificatePassword);
 
-                    certificate = CertificateHelper.FromFile(certificatePath, certificatePassword);
+                    certificate = CertificateHelper.FindFromFile(certificatePath, certificatePassword);
                     if (certificate != null)
                     {
                         Console.WriteLine("Certificate loaded successfully");
@@ -94,34 +78,19 @@ namespace Amido.Testing.Saml2.TokenGenerator
                 }
 
                 var notBeforeDate = DateTime.Parse(ConfigurationManager.AppSettings["NotBeforeDate"]);
-                Console.ForegroundColor = ConsoleColor.White;
-                Console.WriteLine("Not before date:");
-                Console.ResetColor();
-                Console.WriteLine(notBeforeDate);
+                WriteToConsole("Not before date", notBeforeDate.ToShortDateString());
 
                 var notOnOrAfterDate = DateTime.Parse(ConfigurationManager.AppSettings["NotOnOrAfterDate"]);
-                Console.ForegroundColor = ConsoleColor.White;
-                Console.WriteLine("Not on or after date:");
-                Console.ResetColor();
-                Console.WriteLine(notOnOrAfterDate);
+                WriteToConsole("Not on or after date", notOnOrAfterDate.ToShortDateString());
 
                 var issuer = ConfigurationManager.AppSettings["Issuer"];
-                Console.ForegroundColor = ConsoleColor.White;
-                Console.WriteLine("Issuer:");
-                Console.ResetColor();
-                Console.WriteLine(issuer);
+                WriteToConsole("Issuer", issuer);
 
                 var audience = ConfigurationManager.AppSettings["Audience"];
-                Console.ForegroundColor = ConsoleColor.White;
-                Console.WriteLine("Audience:");
-                Console.ResetColor();
-                Console.WriteLine(audience);
+                WriteToConsole("Audience", audience);
 
                 var nameIdentifier = ConfigurationManager.AppSettings["NameIdentifier"];
-                Console.ForegroundColor = ConsoleColor.White;
-                Console.WriteLine("Name identifier:");
-                Console.ResetColor();
-                Console.WriteLine(nameIdentifier);
+                WriteToConsole("Name Identifier", nameIdentifier);
 
                 Console.ForegroundColor = ConsoleColor.Yellow;
                 Console.WriteLine("Loading certificate...");
@@ -132,18 +101,16 @@ namespace Amido.Testing.Saml2.TokenGenerator
                 Console.ResetColor();
                 var tokenFactory = new TokenFactory();
 
-                var token =
-                    tokenFactory.CreateSaml2BearerToken(
-                        new Saml2TokenProperties
-                        {
-                            NameIdentifier = nameIdentifier,
-                            Audience = audience,
-                            Issuer = issuer,
-                            X509Certificate2 = certificate,
-                            NotBeforeDate = notBeforeDate,
-                            NotOnOrAfterDate = notOnOrAfterDate,
-                            Claims = GetClaims()
-                        });
+                var token = tokenFactory.CreateSaml2BearerToken(new Saml2TokenProperties
+                {
+                    NameIdentifier = nameIdentifier,
+                    Audience = audience,
+                    Issuer = issuer,
+                    X509Certificate2 = certificate,
+                    NotBeforeDate = notBeforeDate,
+                    NotOnOrAfterDate = notOnOrAfterDate,
+                    Claims = GetClaims()
+                });
 
                 if (!string.IsNullOrEmpty(token))
                 {
@@ -154,13 +121,11 @@ namespace Amido.Testing.Saml2.TokenGenerator
                     throw new Exception("SAML 2.0 token string was empty... there must be a bug");
                 }
 
-
                 if (bool.Parse(ConfigurationManager.AppSettings["Base64Token"]))
                 {
                     token = EncodeBase64(token);
                     Console.WriteLine("Base64 encoded SAML 2.0 token string");
                 }
-                
 
                 if (bool.Parse(ConfigurationManager.AppSettings["UrlEncodeToken"]))
                 {
@@ -190,6 +155,14 @@ namespace Amido.Testing.Saml2.TokenGenerator
                 Console.WriteLine("Press any key to exit");
                 Console.ReadLine();
             }
+        }
+
+        private static void WriteToConsole(string key, string value, ConsoleColor consoleColor = ConsoleColor.White)
+        {
+            Console.ForegroundColor = consoleColor;
+            Console.WriteLine("{0}:", key);
+            Console.ResetColor();
+            Console.WriteLine(value);
         }
 
         private static StoreName GetStoreName(string storeName)

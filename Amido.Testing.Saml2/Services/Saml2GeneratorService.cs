@@ -21,27 +21,23 @@ namespace Amido.Testing.Saml2.Services
         /// <returns>Returns a <see cref="Saml2SecurityToken"/>.</returns>
         public Saml2SecurityToken CreateSaml2TokenWithBearerSubjectConfirmation(Saml2TokenProperties saml2TokenProperties)
         {
-            var saml2Assertion = new Saml2Assertion(new Saml2NameIdentifier(saml2TokenProperties.NameIdentifier));
+            var saml2Conditions = new Saml2Conditions
+            {
+                NotBefore = saml2TokenProperties.NotBeforeDate,
+                NotOnOrAfter = saml2TokenProperties.NotOnOrAfterDate
+            };
 
-            var conditions = new Saml2Conditions
-                                 {
-                                     NotBefore = saml2TokenProperties.NotBeforeDate,
-                                     NotOnOrAfter = saml2TokenProperties.NotOnOrAfterDate
-                                 };
+            saml2Conditions.AudienceRestrictions.Add(new Saml2AudienceRestriction(new Uri(saml2TokenProperties.Audience, UriKind.RelativeOrAbsolute)));
 
-            conditions.AudienceRestrictions.Add(new Saml2AudienceRestriction(new Uri(saml2TokenProperties.Audience, UriKind.RelativeOrAbsolute)));
-            saml2Assertion.Conditions = conditions;
-
-            var subject = new Saml2Subject();
-            subject.SubjectConfirmations.Add(new Saml2SubjectConfirmation(new Uri("urn:oasis:names:tc:SAML:2.0:cm:bearer")));
-            subject.NameId = new Saml2NameIdentifier(saml2TokenProperties.NameIdentifier);
-
-            saml2Assertion.Subject = subject;
-            saml2Assertion.Issuer = new Saml2NameIdentifier(saml2TokenProperties.Issuer);
+            var saml2Assertion = new Saml2Assertion(new Saml2NameIdentifier(saml2TokenProperties.NameIdentifier))
+            {
+                Conditions = saml2Conditions, 
+                Subject = CreateSaml2Subject(saml2TokenProperties), 
+                Issuer = new Saml2NameIdentifier(saml2TokenProperties.Issuer), 
+                SigningCredentials = CertificateHelper.CreateSigningCredentials(saml2TokenProperties.X509Certificate2)
+            };
 
             AddClaims(saml2Assertion, saml2TokenProperties.Claims);
-
-            saml2Assertion.SigningCredentials = CertificateHelper.CreateCredentials(saml2TokenProperties.X509Certificate2);
 
             return new Saml2SecurityToken(saml2Assertion); 
         }
@@ -53,16 +49,16 @@ namespace Amido.Testing.Saml2.Services
         /// <returns>A SAML 2.0 token string.</returns>
         public string GetSaml2TokenString(Saml2SecurityToken token)
         {
-            var writerSettings = new XmlWriterSettings();
-            var sb = new StringBuilder();
+            var xmlWriterSettings = new XmlWriterSettings();
+            var stringBuilder = new StringBuilder();
 
-            writerSettings.OmitXmlDeclaration = true;
+            xmlWriterSettings.OmitXmlDeclaration = true;
 
-            using (var xmlWriter = XmlWriter.Create(sb, writerSettings))
+            using (var xmlWriter = XmlWriter.Create(stringBuilder, xmlWriterSettings))
             {
                 new Saml2SecurityTokenHandler().WriteToken(xmlWriter, token);
 
-                return sb.ToString();
+                return stringBuilder.ToString();
             }
         }
 
@@ -81,6 +77,14 @@ namespace Amido.Testing.Saml2.Services
             }
 
             saml2Assertion.Statements.Add(saml2AttributeStatement);
+        }
+
+        private static Saml2Subject CreateSaml2Subject(Saml2TokenProperties saml2TokenProperties)
+        {
+            var subject = new Saml2Subject();
+            subject.SubjectConfirmations.Add(new Saml2SubjectConfirmation(new Uri("urn:oasis:names:tc:SAML:2.0:cm:bearer")));
+            subject.NameId = new Saml2NameIdentifier(saml2TokenProperties.NameIdentifier);
+            return subject;
         }
     }
 }
