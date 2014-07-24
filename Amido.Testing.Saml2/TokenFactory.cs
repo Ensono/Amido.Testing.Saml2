@@ -30,12 +30,9 @@ namespace Amido.Testing.Saml2
         {
             var saml2Token = saml2GeneratorService.CreateSaml2TokenWithBearerSubjectConfirmation(saml2TokenProperties);
 
-            if (base64Encode)
-            {
-                return Base64Encode(saml2GeneratorService.GetSaml2TokenString(saml2Token));
-            }
-
-            return saml2GeneratorService.GetSaml2TokenString(saml2Token);
+            return base64Encode
+                       ? saml2GeneratorService.GetSaml2TokenString(saml2Token)
+                       : Base64Encode(saml2GeneratorService.GetSaml2TokenString(saml2Token));
         }
 
         private static string Base64Encode(string token)
