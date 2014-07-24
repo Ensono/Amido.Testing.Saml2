@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Management.Automation;
+using System.Windows.Forms;
 using Amido.Testing.Saml2.Certificates;
 using Amido.Testing.Saml2.Models;
 
@@ -9,15 +10,19 @@ namespace Amido.Testing.Saml2
     public class TokenFactoryCmdLet : PSCmdlet
     {
         [Parameter(Mandatory = true, HelpMessage = "The trusted issuer with which the token will be created with")]
+        [Alias("i")]
         public string Issuer { get; set; }
 
         [Parameter(Mandatory = true, HelpMessage = "The trusted audience for which the token will be used with")]
+        [Alias("a")]
         public string Audience { get; set; }
 
         [Parameter(Mandatory = true)]
+        [Alias("id")]
         public string NameIdentifier { get; set; }
 
         [Parameter(Mandatory = true, HelpMessage = "The thumbprint of the certificate to sign the token with")]
+        [Alias("t")]
         public string Thumbprint { get; set; }
 
         [Parameter(Mandatory = true, HelpMessage = "The store name of the certificate to sign the token with")]
@@ -26,14 +31,20 @@ namespace Amido.Testing.Saml2
         [Parameter(Mandatory = true, HelpMessage = "The store location of the certificate to sign the token with")]
         public string StoreLocation { get; set; }
 
-        [Parameter(Mandatory = false, HelpMessage = "If true the output will be Base64 encoded")]
+        [Parameter(Mandatory = false, HelpMessage = "If true the output will be Base64 encoded.  Default is true")]
         public string Base64Encode { get; set; }
 
-        [Parameter(Mandatory = false, HelpMessage = "The start date and time of the token lifetime")]
+        [Parameter(Mandatory = false, HelpMessage = "If true the output will be Url encoded.  Default is false")]
+        public string UrlEncode { get; set; }
+
+        [Parameter(Mandatory = false, HelpMessage = "The start date and time of the token lifetime.  Default is 24 hours in the past")]
         public string NotBeforeDate { get; set; }
 
-        [Parameter(Mandatory = false, HelpMessage = "The end date and time of the token lifetime")]
+        [Parameter(Mandatory = false, HelpMessage = "The end date and time of the token lifetime.  Default is 24 hours in the future")]
         public string NotOnOrAfterDate { get; set; }
+
+        [Parameter(Mandatory = false, HelpMessage = "The type of token to be used.  Default is bearer token")]
+        public string SamlSubjectConfirmation { get; set; }
 
         protected override void ProcessRecord()
         {
@@ -49,13 +60,16 @@ namespace Amido.Testing.Saml2
                     X509Certificate2 = certificate,
                     NotBeforeDate = GetNotBeforeDate(),
                     NotOnOrAfterDate = GetNotOnOrAfterDate(),
+                    SamlSubjectConfirmation = GetSamlSubjectConfirmation()
                 };
 
-                var samlToken = new TokenFactory().CreateSaml2BearerToken(saml2TokenProperties, ParseBool(Base64Encode));
+                var samlToken = new TokenFactory().CreateSaml2Token(saml2TokenProperties, ParseBool(Base64Encode, true), ParseBool(UrlEncode, false));
 
                 WriteObject(samlToken);
 
-                //TODO: Write to Clipboard
+                Clipboard.SetText(samlToken);
+
+                WriteVerbose("Saml Token generated and added to the clipboard");
 
                 base.ProcessRecord();
             }
@@ -63,6 +77,16 @@ namespace Amido.Testing.Saml2
             {
                 WriteError(new ErrorRecord(exception, "1", ErrorCategory.InvalidOperation, string.Format("An exception has been thrown generating the SAML token")));
             }
+        }
+
+        private string GetSamlSubjectConfirmation()
+        {
+            if (string.IsNullOrEmpty(SamlSubjectConfirmation))
+            {
+                return "urn:oasis:names:tc:SAML:2.0:cm:bearer";
+            }
+
+            return SamlSubjectConfirmation;
         }
 
         private DateTime GetNotBeforeDate()
@@ -97,7 +121,7 @@ namespace Amido.Testing.Saml2
             return false;
         }
 
-        private bool ParseBool(string value)
+        private bool ParseBool(string value, bool defaultValue)
         {
             Boolean result;
 
@@ -106,7 +130,7 @@ namespace Amido.Testing.Saml2
                 return result;
             }
 
-            return false;
+            return defaultValue;
         }
     }
 }

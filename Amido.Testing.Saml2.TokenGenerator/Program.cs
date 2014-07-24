@@ -5,7 +5,6 @@ using System.Globalization;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
-using System.Web;
 using System.Windows.Forms;
 using Amido.Testing.Saml2.Certificates;
 using Amido.Testing.Saml2.Models;
@@ -92,6 +91,15 @@ namespace Amido.Testing.Saml2.TokenGenerator
                 var nameIdentifier = ConfigurationManager.AppSettings["NameIdentifier"];
                 WriteToConsole("Name Identifier", nameIdentifier);
 
+                var samlSubjectConfirmation = ConfigurationManager.AppSettings["SamlSubjectConfirmation"];
+                WriteToConsole("Saml Subject Confirmation", samlSubjectConfirmation);
+
+                var base64Encode = bool.Parse(ConfigurationManager.AppSettings["Base64Token"]);
+                WriteToConsole("Base64 Encode", base64Encode ? "true" : "false");
+
+                var urlEncode = bool.Parse(ConfigurationManager.AppSettings["UrlEncodeToken"]);
+                WriteToConsole("Url Encode", urlEncode ? "true" : "false");
+
                 Console.ForegroundColor = ConsoleColor.Yellow;
                 Console.WriteLine("Loading certificate...");
                 Console.ResetColor();
@@ -101,7 +109,7 @@ namespace Amido.Testing.Saml2.TokenGenerator
                 Console.ResetColor();
                 var tokenFactory = new TokenFactory();
 
-                var token = tokenFactory.CreateSaml2BearerToken(new Saml2TokenProperties
+                var token = tokenFactory.CreateSaml2Token(new Saml2TokenProperties
                 {
                     NameIdentifier = nameIdentifier,
                     Audience = audience,
@@ -110,31 +118,13 @@ namespace Amido.Testing.Saml2.TokenGenerator
                     NotBeforeDate = notBeforeDate,
                     NotOnOrAfterDate = notOnOrAfterDate,
                     Claims = GetClaims()
-                });
+                }, base64Encode, urlEncode);
 
                 if (!string.IsNullOrEmpty(token))
                 {
                     Console.WriteLine("SAML 2.0 token string generated");
                 }
                 else
-                {
-                    throw new Exception("SAML 2.0 token string was empty... there must be a bug");
-                }
-
-                //TODO: Refactor to pass to CreateSaml2BearerToken
-                if (bool.Parse(ConfigurationManager.AppSettings["Base64Token"]))
-                {
-                    token = EncodeBase64(token);
-                    Console.WriteLine("Base64 encoded SAML 2.0 token string");
-                }
-
-                if (bool.Parse(ConfigurationManager.AppSettings["UrlEncodeToken"]))
-                {
-                    token = HttpUtility.UrlEncode(token);
-                    Console.WriteLine("Url encoded SAML 2.0 token");
-                }
-
-                if (token == null)
                 {
                     throw new Exception("SAML 2.0 token string was empty... there must be a bug");
                 }

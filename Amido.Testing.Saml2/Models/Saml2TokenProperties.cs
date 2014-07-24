@@ -23,6 +23,8 @@ namespace Amido.Testing.Saml2.Models
 
         public X509Certificate2 X509Certificate2 { get; set; }
 
+        public string SamlSubjectConfirmation { get; set; }
+
         public Dictionary<string, string> Claims { get; set; }
     }
 }
