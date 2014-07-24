@@ -41,5 +41,40 @@ namespace Amido.Testing.Saml2.Certificates
         {
             return new X509SigningCredentials(certificate);
         }
+
+        public static StoreName GetStoreName(string storeName)
+        {
+            switch (storeName.ToLower())
+            {
+                case "my":
+                    return StoreName.My;
+                case "addressbook":
+                    return StoreName.AddressBook;
+                case "authroot":
+                    return StoreName.AuthRoot;
+                case "certificateauthority":
+                    return StoreName.CertificateAuthority;
+                case "root":
+                    return StoreName.Root;
+                case "trustedpeople":
+                    return StoreName.TrustedPeople;
+                case "trustedpublisher":
+                    return StoreName.TrustedPublisher;
+            }
+
+            throw new ArgumentException("The storename " + storeName + " is not supported.");
+        }
+
+        public static StoreLocation GetStoreLocation(string storeLocation)
+        {
+            switch (storeLocation.ToLower())
+            {
+                case "localmachine":
+                    return StoreLocation.LocalMachine;
+                case "currentuser":
+                    return StoreLocation.CurrentUser;
+            }
+            throw new ArgumentException("The storeLocation " + storeLocation + " is not supported.");
+        }
     }
 }

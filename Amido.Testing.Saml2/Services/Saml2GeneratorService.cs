@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IdentityModel.Tokens;
 using System.Text;
 using System.Xml;
-
 using Amido.Testing.Saml2.Certificates;
 using Amido.Testing.Saml2.Models;
 
@@ -81,6 +80,8 @@ namespace Amido.Testing.Saml2.Services
 
         private static Saml2Subject CreateSaml2Subject(Saml2TokenProperties saml2TokenProperties)
         {
+            //TODO: Get Uri from Configuration
+
             var subject = new Saml2Subject();
             subject.SubjectConfirmations.Add(new Saml2SubjectConfirmation(new Uri("urn:oasis:names:tc:SAML:2.0:cm:bearer")));
             subject.NameId = new Saml2NameIdentifier(saml2TokenProperties.NameIdentifier);

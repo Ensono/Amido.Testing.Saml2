@@ -56,7 +56,7 @@ namespace Amido.Testing.Saml2.TokenGenerator
                     var storeLocation = ConfigurationManager.AppSettings["StoreLocation"];
                     WriteToConsole("StoreLocation", storeLocation);
 
-                    certificate = CertificateHelper.FindByThumbprint(thumbprint, GetStoreName(storeName), GetStoreLocation(storeLocation));
+                    certificate = CertificateHelper.FindByThumbprint(thumbprint, CertificateHelper.GetStoreName(storeName), CertificateHelper.GetStoreLocation(storeLocation));
                     if (certificate != null)
                     {
                         Console.WriteLine("Certificate loaded successfully");
@@ -121,6 +121,7 @@ namespace Amido.Testing.Saml2.TokenGenerator
                     throw new Exception("SAML 2.0 token string was empty... there must be a bug");
                 }
 
+                //TODO: Refactor to pass to CreateSaml2BearerToken
                 if (bool.Parse(ConfigurationManager.AppSettings["Base64Token"]))
                 {
                     token = EncodeBase64(token);
@@ -163,41 +164,6 @@ namespace Amido.Testing.Saml2.TokenGenerator
             Console.WriteLine("{0}:", key);
             Console.ResetColor();
             Console.WriteLine(value);
-        }
-
-        private static StoreName GetStoreName(string storeName)
-        {
-            switch(storeName.ToLower())
-            {
-                case "my":
-                    return StoreName.My;
-                case "addressbook":
-                    return StoreName.AddressBook;
-                case "authroot":
-                    return StoreName.AuthRoot;
-                case "certificateauthority":
-                    return StoreName.CertificateAuthority;
-                case "root":
-                    return StoreName.Root;
-                case "trustedpeople":
-                    return StoreName.TrustedPeople;
-                case "trustedpublisher":
-                    return StoreName.TrustedPublisher;
-            }
-
-            throw new ArgumentException("The storename " + storeName + " is not supported.");
-        }
-
-        private static StoreLocation GetStoreLocation(string storeLocation)
-        {
-            switch (storeLocation.ToLower())
-            {
-                case "localmachine":
-                    return StoreLocation.LocalMachine;
-                case "currentuser":
-                    return StoreLocation.CurrentUser;
-            }
-            throw new ArgumentException("The storeLocation " + storeLocation + " is not supported.");
         }
 
         private static void WriteHelp()
