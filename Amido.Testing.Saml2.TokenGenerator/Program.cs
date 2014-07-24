@@ -117,7 +117,8 @@ namespace Amido.Testing.Saml2.TokenGenerator
                     X509Certificate2 = certificate,
                     NotBeforeDate = notBeforeDate,
                     NotOnOrAfterDate = notOnOrAfterDate,
-                    Claims = GetClaims()
+                    Claims = new Dictionary<string, string>(),
+                    SamlSubjectConfirmation = samlSubjectConfirmation
                 }, base64Encode, urlEncode);
 
                 if (!string.IsNullOrEmpty(token))
